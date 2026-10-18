@@ -1,0 +1,46 @@
+# Sensitive environment variables & credentials
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases & cache
+cache.db
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Local user configurations & overrides
+custom_mappings.json
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environments & Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs & temp files
+*.log
+logs/
