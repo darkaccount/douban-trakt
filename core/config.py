@@ -42,6 +42,9 @@ class Config:
         if m:
             DOUBAN_USER_ID = m.group(1)
 
+    # Default official Trakt web application client ID (publicly used across trakt.tv web interface)
+    DEFAULT_TRAKT_CLIENT_ID = "201dc70c5ec6af530f12f079ea1922733f6e1085ad7b02f36d8e011b75bcea7d"
+
     # --- 2. Trakt Auth ---
     # Priority: TRAKT_AUTH (single variable) or separate TRAKT_CLIENT_ID / TRAKT_ACCESS_TOKEN
     TRAKT_AUTH = os.getenv("TRAKT_AUTH", "").strip()
@@ -61,14 +64,24 @@ class Config:
                 TRAKT_REFRESH_TOKEN = parts[2]
             if len(parts) >= 4:
                 TRAKT_CLIENT_SECRET = parts[3]
-        # Format B: Console F12 output: TRAKT_CLIENT_ID=... TRAKT_ACCESS_TOKEN=...
-        elif "TRAKT_CLIENT_ID" in TRAKT_AUTH or "TRAKT_ACCESS_TOKEN" in TRAKT_AUTH:
-            m_id = re.search(r'TRAKT_CLIENT_ID=([^\s;]+)', TRAKT_AUTH)
-            m_tok = re.search(r'TRAKT_ACCESS_TOKEN=([^\s;]+)', TRAKT_AUTH)
+        # Format B: Console F12 output or Network Request headers
+        elif (
+            "TRAKT_CLIENT_ID" in TRAKT_AUTH
+            or "TRAKT_ACCESS_TOKEN" in TRAKT_AUTH
+            or "trakt-api-key" in TRAKT_AUTH.lower()
+            or "bearer" in TRAKT_AUTH.lower()
+        ):
+            m_id = re.search(r'(?:TRAKT_CLIENT_ID|trakt-api-key)[:=]\s*([^\s;]+)', TRAKT_AUTH, re.IGNORECASE)
+            m_tok = re.search(r'(?:TRAKT_ACCESS_TOKEN[:=]|bearer)\s*([^\s;]+)', TRAKT_AUTH, re.IGNORECASE)
             if m_id:
                 TRAKT_CLIENT_ID = m_id.group(1).strip()
             if m_tok:
                 TRAKT_ACCESS_TOKEN = m_tok.group(1).strip()
+            elif not m_id and not m_tok:
+                # If it's just "Bearer xxx"
+                tok = re.sub(r'^bearer\s+', '', TRAKT_AUTH, flags=re.IGNORECASE).strip()
+                if tok:
+                    TRAKT_ACCESS_TOKEN = tok
         # Format C: JSON object
         elif TRAKT_AUTH.startswith("{") and TRAKT_AUTH.endswith("}"):
             try:
@@ -80,10 +93,20 @@ class Config:
             except Exception:
                 pass
         # Format D: client_id:client_secret (for OAuth flow)
-        elif ":" in TRAKT_AUTH and len(TRAKT_AUTH.split(":")) == 2:
+        elif ":" in TRAKT_AUTH and len(TRAKT_AUTH.split(":")) == 2 and not TRAKT_AUTH.lower().startswith("bearer"):
             parts = TRAKT_AUTH.split(":")
             TRAKT_CLIENT_ID = parts[0].strip()
             TRAKT_CLIENT_SECRET = parts[1].strip()
+        # Format E: Pure Access Token (direct token paste)
+        else:
+            token = TRAKT_AUTH.strip()
+            if token.lower().startswith("bearer "):
+                token = token[7:].strip()
+            TRAKT_ACCESS_TOKEN = token
+
+    # Fallback to official default web client ID if only access token is provided
+    if TRAKT_ACCESS_TOKEN and not TRAKT_CLIENT_ID:
+        TRAKT_CLIENT_ID = DEFAULT_TRAKT_CLIENT_ID
 
     # --- 3. Optional Settings ---
     SYNC_DELAY_MIN = float(os.getenv("SYNC_DELAY_MIN", "3.0"))

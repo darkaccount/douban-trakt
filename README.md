@@ -73,17 +73,21 @@ cp .env.example .env
 > - `DOUBAN_AUTH`: 直接粘贴豆瓣完整 Cookie 字符串（自动提取用户数字 ID 及 CSRF 校验码）；或填写 `手机号/邮箱:密码`。
 > - `TRAKT_AUTH`: 填写 `Client_ID#Access_Token`，或直接粘贴浏览器控制台获取的完整配置。
 
-#### ① Trakt 凭证获取（10 秒搞定，无需 VIP）
-1. 在浏览器登录 [trakt.tv](https://trakt.tv)。
-2. 按 `F12` 打开开发者工具，切换到 **Console (控制台)**。
-3. 粘贴并运行以下代码：
-   ```javascript
-   const key = Object.keys(localStorage).find(k => k.startsWith('oidc.user:'));
-   const d = JSON.parse(localStorage.getItem(key));
-   const clientId = d.client_id || d.profile?.aud || key.split(':').pop();
-   console.log(`TRAKT_CLIENT_ID=${clientId}\nTRAKT_ACCESS_TOKEN=${d.access_token}`);
-   ```
-4. 将输出的两行值填入 `.env`（或合并为 `TRAKT_AUTH`）。
+#### ① Trakt 凭证获取（3 秒搞定，无需申请 VIP）
+提供以下两种极简方式（任选一种）：
+
+- **方式一（推荐：控制台 1 键自动复制到剪贴板）**：
+  1. 电脑浏览器打开并登录 [trakt.tv](https://trakt.tv)；
+  2. 按 `F12` 打开开发者工具，切换到 **Console (控制台)**；
+  3. 粘贴并回车运行下面这行命令：
+     ```javascript
+     copy(JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('oidc.user:')))).access_token)
+     ```
+     > 💡 **运行后你的 Access Token 字符串已自动存入系统剪贴板！**
+     > 直接在青龙环境变量或 `.env` 的 `TRAKT_AUTH` 处按 `Ctrl + V` 粘贴即可（程序已内置官方公共 Web Client ID，无需手动拼接或查找 Client ID）。
+
+- **方式二（F12 Network 网络请求头直接复制）**：
+  在 [trakt.tv](https://trakt.tv) 页面按 `F12` 切换到 **Network (网络)**，刷新网页，在筛选框输入 `trakt`，点击任意请求，在 `Request Headers` 中找到 `authorization: Bearer xxx`，将 `xxx`（或整段请求头）直接粘贴到 `TRAKT_AUTH` 亦可识别。
 
 #### ② 豆瓣凭证获取
 1. `DOUBAN_USER_ID`: 打开你的豆瓣个人主页，URL 最后的 ID（如 `https://www.douban.com/people/your_user_id/` 中的 `your_user_id`）。*若使用 `DOUBAN_AUTH` 填完整 Cookie 则会自动提取，无需单独配置。*
@@ -201,7 +205,7 @@ ql repo https://github.com/darkaccount/douban-trakt.git "ql_" "core|main" "core|
 | 变量名 | 内容格式与说明 |
 | :--- | :--- |
 | `DOUBAN_AUTH` | **推荐直接填入豆瓣完整 Cookie**。<br>*(脚本会自动识别并从中提取用户数字 ID 及 CSRF 码，无需额外设置 `DOUBAN_USER_ID`！)*<br>或填入 `豆瓣手机号/邮箱:密码`（若 Cookie 失效且无滑块验证时将尝试自动登录）。 |
-| `TRAKT_AUTH` | 格式支持：<br>1. `Client_ID#Access_Token`<br>2. 或直接粘贴浏览器 F12 控制台获取的字符串：`TRAKT_CLIENT_ID=... TRAKT_ACCESS_TOKEN=...` |
+| `TRAKT_AUTH` | **推荐直接填入 Trakt Access Token**（通过控制台一键复制即可）。<br>脚本兼容以下任意格式：<br>1. **纯 Token**：直接粘贴 `access_token` 字符串（自动套用官方 Client ID）<br>2. **带前缀**：`Bearer xxx`<br>3. **组合格式**：`Client_ID#Access_Token`<br>4. **控制台两行**：`TRAKT_CLIENT_ID=... TRAKT_ACCESS_TOKEN=...`<br>5. **Network 请求头**：直接粘贴包含 `authorization: Bearer ...` 的请求头 |
 
 *(注：原有的 `DOUBAN_COOKIE`、`DOUBAN_USER_ID`、`TRAKT_CLIENT_ID`、`TRAKT_ACCESS_TOKEN` 分离配置依然完全兼容。)*
 
