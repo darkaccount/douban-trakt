@@ -167,7 +167,7 @@ cp custom_mappings.example.json custom_mappings.json
 | **定时规则** | `0 0 * * *` | 每天凌晨自动拉取最新代码 |
 | **白名单 (必须填写)** | `ql_` | **核心！只拉取 `ql_*.py` 任务脚本，杜绝内部模块生成多余任务** |
 | **黑名单** | `core\|main` | 彻底过滤核心库与本地交互式入口 |
-| **依赖文件 (必须填写)** | `core` | **核心！将 `core/` 目录同步到脚本执行区供调用** |
+| **依赖文件 (必须填写)** | `core\|requirements` | **核心！将 `core/` 目录与 `requirements.txt` 同步到脚本执行区供调用** |
 | **分支** | `main` | 仓库主分支 |
 
 保存后点击 **运行** 订阅，面板的「定时任务」中将只创建干净的 3 个分级任务！
@@ -175,7 +175,7 @@ cp custom_mappings.example.json custom_mappings.json
 #### 方式 B：青龙命令行一键拉库
 也可直接在青龙面板「终端」或容器命令行中执行：
 ```bash
-ql repo https://github.com/darkaccount/douban-trakt.git "ql_" "core|main" "core" "main"
+ql repo https://github.com/darkaccount/douban-trakt.git "ql_" "core|main" "core|requirements" "main"
 ```
 
 ---
