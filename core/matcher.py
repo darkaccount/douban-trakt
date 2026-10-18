@@ -3,7 +3,11 @@ import json
 import re
 from dataclasses import dataclass, field
 from typing import List, Set, Dict, Optional, Tuple, Any
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
 
 try:
     from .models import MovieRecord

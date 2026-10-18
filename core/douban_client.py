@@ -5,7 +5,10 @@ from typing import List, Optional, Dict, Any
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 try:
     from .models import MovieRecord

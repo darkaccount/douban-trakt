@@ -1,15 +1,17 @@
 import os
 import re
 import json
-from dotenv import load_dotenv
-
-# Load .env file from project root or environment
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-dotenv_path = os.path.join(BASE_DIR, ".env")
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-else:
-    load_dotenv()
+# Load .env file from project root or environment (optional in Qinglong / Docker)
+try:
+    from dotenv import load_dotenv
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    dotenv_path = os.path.join(BASE_DIR, ".env")
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
 
 
 class Config:

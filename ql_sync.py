@@ -20,6 +20,16 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+try:
+    import requests
+except ImportError:
+    print("=" * 60)
+    print("✘ 缺少必要依赖包 requests！")
+    print("👉 请先在青龙面板「定时任务」中手动运行一次【豆瓣-Trakt 1.依赖安装与更新】(ql_install.py)")
+    print("   或者在青龙面板「依赖管理」->「Python3」中添加: requests beautifulsoup4")
+    print("=" * 60)
+    sys.exit(1)
+
 from core.config import Config
 from core.database import LocalDatabase
 from core.trakt_client import TraktClient

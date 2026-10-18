@@ -2,7 +2,11 @@ import time
 import random
 import re
 from typing import List, Dict, Any, Optional
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
 
 try:
     from .models import MovieRecord
