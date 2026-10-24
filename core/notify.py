@@ -28,15 +28,24 @@ def send_notification(title: str, content: str):
         pass
 
     # 2. Try Qinglong native Node.js sendNotify.js
+    #    Title/content travel via env vars and subprocess takes an argument list
+    #    without a shell, so movie titles can't inject commands.
+    node_script = (
+        "const notify = require(process.argv[1]);"
+        "notify.sendNotify(process.env.QL_NOTIFY_TITLE, process.env.QL_NOTIFY_CONTENT);"
+    )
+    node_env = {**os.environ, "QL_NOTIFY_TITLE": title, "QL_NOTIFY_CONTENT": content}
     for js_dir in ["/ql/data/scripts", "/ql/scripts"]:
         js_file = os.path.join(js_dir, "sendNotify.js")
         if os.path.exists(js_file):
             try:
-                # Sanitize content for shell
-                safe_title = title.replace('"', '\\"').replace("`", "")
-                safe_content = content.replace('"', '\\"').replace("`", "")
-                cmd = f'node -e "const notify = require(\'{js_file}\'); notify.sendNotify(\'{safe_title}\', \'{safe_content}\');"'
-                res = subprocess.run(cmd, shell=True, text=True, timeout=12, capture_output=True)
+                res = subprocess.run(
+                    ["node", "-e", node_script, js_file],
+                    env=node_env,
+                    text=True,
+                    timeout=12,
+                    capture_output=True,
+                )
                 if res.returncode == 0:
                     return
             except Exception:

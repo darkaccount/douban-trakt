@@ -278,6 +278,20 @@ def cmd_manage_ignored(args=None):
     """View and manage ignored items."""
     db = LocalDatabase()
     account_id = getattr(args, "account", None) if args else None
+    unignore_target = getattr(args, "unignore", None) if args else None
+
+    if unignore_target:
+        removed = 0
+        for item in db.get_ignored_items(None):
+            if item["identifier"] == unignore_target:
+                db.unignore_item(item["account_id"], item["identifier"])
+                removed += 1
+        if removed:
+            console.print(f"[green]✔ 已解除忽略 {removed} 条记录: {unignore_target}[/green]")
+        else:
+            console.print(f"[yellow]未找到标识为 {unignore_target} 的忽略记录。[/yellow]")
+        return
+
     ignored = db.get_ignored_items(account_id)
     if not ignored:
         console.print("[yellow]当前忽略表中没有条目。[/yellow]")
@@ -352,6 +366,12 @@ def interactive_menu():
             cmd_diff(RefreshArgs())
         elif choice == "8":
             cmd_manage_ignored()
+            target = input("\n如需解除忽略，请输入条目标识 (直接回车返回): ").strip()
+            if target:
+                class UnignoreArgs:
+                    unignore = target
+                    account = None
+                cmd_manage_ignored(UnignoreArgs())
         elif choice in ("0", "q", "quit", "exit"):
             console.print("[green]已退出。[/green]")
             break
@@ -401,7 +421,14 @@ def main():
     p_all.add_argument("--refresh-trakt", action="store_true", help="强制全量重新拉取 Trakt 远程数据")
 
     # ignored
-    subparsers.add_parser("ignored", help="查看已忽略 / 豆瓣未收录条目列表")
+    p_ignored = subparsers.add_parser("ignored", help="查看已忽略 / 豆瓣未收录条目列表")
+    p_ignored.add_argument("--account", default=None, help="仅查看指定账号的忽略记录")
+    p_ignored.add_argument(
+        "--unignore",
+        metavar="IDENTIFIER",
+        default=None,
+        help="解除忽略指定条目（identifier 见列表第一列，如 IMDb ID）",
+    )
 
     args = parser.parse_args()
 

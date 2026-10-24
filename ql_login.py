@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# new Env('豆瓣-Trakt 2.账号登录与凭证验证')
+# new Env('豆瓣-Trakt 1.账号登录与凭证验证')
 # cron: 0 0 1 1 *
 """
 cron: 0 0 1 1 *
-new Env('豆瓣-Trakt 2.账号登录与凭证验证')
+new Env('豆瓣-Trakt 1.账号登录与凭证验证')
 """
 import sys
 import os
@@ -19,14 +19,9 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-try:
-    import requests
-except ImportError:
-    print("=" * 60)
-    print("✘ 缺少必要依赖包 requests！")
-    print("👉 请先在青龙面板「定时任务」中手动运行一次【豆瓣-Trakt 1.依赖安装与更新】(ql_install.py)")
-    print("   或者在青龙面板「依赖管理」->「Python3」中添加: requests beautifulsoup4")
-    print("=" * 60)
+from core.deps import ensure_dependencies
+
+if not ensure_dependencies():
     sys.exit(1)
 
 from core.config import Config
@@ -38,7 +33,7 @@ from core.notify import send_notification
 
 def main():
     print("=" * 60)
-    print("【青龙任务 2/3】豆瓣与Trakt同步脚本 - 账号登录与凭证健康检查")
+    print("【青龙任务 1/2】豆瓣与Trakt同步脚本 - 账号登录与凭证健康检查")
     print("=" * 60)
 
     db = LocalDatabase()

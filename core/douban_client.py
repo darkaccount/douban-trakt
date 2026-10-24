@@ -376,10 +376,6 @@ class DoubanClient:
                 )
                 if resp.status_code == 200:
                     results = resp.json()
-                    # Soft rate limit check: if empty for common query, canary check
-                    if not results and len(cand) >= 2:
-                        pass
-
                     for item in results:
                         res_id = str(item.get("id"))
                         res_year = item.get("year")
@@ -428,6 +424,14 @@ class DoubanClient:
 
         response = self.session.post(url, data=payload, headers=headers, timeout=15)
         if response.status_code == 200:
+            # 豆瓣接口失败时也可能返回 200，需解析响应体确认真实结果
+            try:
+                data = response.json()
+            except ValueError:
+                return True
+            if data.get("result") is False:
+                print(f"标记豆瓣条目 {douban_id} 被拒绝: {data}")
+                return False
             return True
         elif response.status_code == 403:
             raise PermissionError(f"标记豆瓣条目 {douban_id} 失败：403 Forbidden，请暂停同步并检查 Cookie。")

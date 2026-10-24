@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# new Env('豆瓣-Trakt 3.日常定时增量同步')
+# new Env('豆瓣-Trakt 2.日常定时增量同步')
 # cron: 0 4 * * *
 """
 cron: 0 4 * * *
-new Env('豆瓣-Trakt 3.日常定时增量同步')
+new Env('豆瓣-Trakt 2.日常定时增量同步')
 """
 import sys
 import os
@@ -20,14 +20,9 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-try:
-    import requests
-except ImportError:
-    print("=" * 60)
-    print("✘ 缺少必要依赖包 requests！")
-    print("👉 请先在青龙面板「定时任务」中手动运行一次【豆瓣-Trakt 1.依赖安装与更新】(ql_install.py)")
-    print("   或者在青龙面板「依赖管理」->「Python3」中添加: requests beautifulsoup4")
-    print("=" * 60)
+from core.deps import ensure_dependencies
+
+if not ensure_dependencies():
     sys.exit(1)
 
 from core.config import Config
@@ -41,7 +36,7 @@ from core.notify import send_notification
 
 def main():
     print("=" * 60)
-    print("【青龙任务 3/3】豆瓣与Trakt影视双向同步 - 定时日常同步任务")
+    print("【青龙任务 2/2】豆瓣与Trakt影视双向同步 - 定时日常同步任务")
     print("=" * 60)
 
     db = LocalDatabase()
